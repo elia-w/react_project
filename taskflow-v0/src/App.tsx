@@ -3,13 +3,15 @@ import './App.css'
 import { TaskForm } from './components/TaskForm';
 import { FilterBar } from './components/FilterBar';
 import { TaskList } from './components/TaskList';
+import { useLocalStorage } from './components/useLocalStorage';
 
 type Status = "todo" | "doing" | "done";
 type Task = { id: string; title: string; status: Status; priority: 1 | 2 | 3; };
 type Filter = "all" | Status;
 
 export default function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
   const [filter, setFilter] = useState<Filter>("all");
   const visible = filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
   const remaining = tasks.filter((t) => t.status !== "done").length;
