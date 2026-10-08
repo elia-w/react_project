@@ -21,5 +21,14 @@
     "oxlint": "^1.81.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
+  },
+  "scripts": {
+  "dev": "concurrently -n api,web -c blue,green \"npm:api\" \"npm:web\"",
+  "web": "vite",
+  "api": "json-server db.json --port 3001",
+  "reset-db": "node -e \"require('fs').copyFileSync('db.seed.json','db.json')\"",
+  "build": "tsc --noEmit && vite build",
+  "preview": "vite preview",
+  "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   }
 }
