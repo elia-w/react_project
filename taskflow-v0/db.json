@@ -9,6 +9,11 @@
       "id": "taskflow",
       "name": "TaskFlow",
       "description": "Application de gestion de tâches avec React."
+    },
+    {
+      "name": "Test",
+      "description": "",
+      "id": "wdHV1A8e6zY"
     }
   ],
   "tasks": [

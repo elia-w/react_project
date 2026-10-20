@@ -106,3 +106,24 @@ export async function deleteTask(id: string): Promise<void> {
     throw new ApiError(response.status, "Suppression impossible");
   }
 }
+
+export async function createProject(
+  data: Pick<Project, "name" | "description">
+): Promise<Project> {
+  const response = await fetch(`${API_URL}/projects`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      "Impossible de créer le projet"
+    );
+  }
+
+  return response.json();
+}
