@@ -1,92 +1,167 @@
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getProject, getProjectTasks } from "../api";
-import type { Project, ProjectTask } from "../type";
+import { Card } from "../components/Card";
+
+import * as api from "../api";
+import { nextStatus } from "../type";
+
+import type {
+  Project,
+  ProjectTask,
+  Filter,
+  Priority,
+} from "../type";
+
+import { FilterBar } from "../components/FilterBar";
+import { TaskForm } from "../components/TaskForm";
+import { TaskList } from "../components/TaskList";
 
 export function ProjectPage() {
   const { id } = useParams<{ id: string }>();
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<ProjectTask[]>([]);
+  const [filter, setFilter] = useState<Filter>("all");
+
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
-      setError("Identifiant du projet manquant");
+      setNotFound(true);
       setLoading(false);
       return;
     }
 
-    let cancelled = false;
+    let ignore = false;
 
-    async function loadProject() {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setNotFound(false);
+    setError(null);
+    setProject(null);
+    setTasks([]);
 
-      try {
-        const [projectData, tasksData] = await Promise.all([
-          getProject(id!),
-          getProjectTasks(id!),
-        ]);
+    Promise.all([
+      api.getProject(id),
+      api.getProjectTasks(id),
+    ])
+      .then(([p, t]) => {
+        if (ignore) return;
+        setProject(p);
+        setTasks(t);
+      })
+      .catch((e: unknown) => {
+        if (ignore) return;
 
-        if (!cancelled) {
-          setProject(projectData);
-          setTasks(tasksData);
+        if (e instanceof api.ApiError && e.status === 404) {
+          setNotFound(true);
+        } else {
+          setError("Impossible de charger le projet.");
         }
-      } catch {
-        if (!cancelled) {
-          setError("Impossible de charger le projet");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadProject();
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
 
     return () => {
-      cancelled = true;
+      ignore = true;
     };
   }, [id]);
 
-  if (loading) {
-    return <p>Chargement du projet...</p>;
+  async function add(title: string, priority: Priority = 2) {
+    if (!id) return;
+
+    try {
+      const created = await api.createTask({
+        projectId: id,
+        title,
+        status: "todo",
+        priority,
+      });
+
+      setTasks((prev) => [...prev, created]);
+    } catch {
+      setError("La tâche n'a pas pu être ajoutée.");
+    }
   }
 
-  if (error) {
-    return <p role="alert">{error}</p>;
+  async function remove(taskId: string) {
+    try {
+      await api.deleteTask(taskId);
+
+      setTasks((prev) =>
+        prev.filter((t) => t.id !== taskId)
+      );
+    } catch {
+      setError("La tâche n'a pas pu être supprimée.");
+    }
   }
+
+  async function cycle(taskId: string) {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    try {
+      const updated = await api.updateTask(taskId, {
+        status: nextStatus(task.status),
+      });
+
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? updated : t
+        )
+      );
+    } catch {
+      setError("La tâche n'a pas pu être modifiée.");
+    }
+  }
+
+  if (loading) return <p>Chargement...</p>;
+
+  if (notFound) return <h1>404 - Projet introuvable</h1>;
 
   if (!project) {
-    return <p>Projet introuvable.</p>;
+    return (
+      <p role="alert">
+        {error ?? "Projet indisponible."}
+      </p>
+    );
   }
+
+  const visible =
+    filter === "all"
+      ? tasks
+      : tasks.filter((t) => t.status === filter);
 
   return (
     <section>
-      <Link to="/">← Retour aux projets</Link>
+      <Link to="/">← Tous les projets</Link>
 
       <h1>{project.name}</h1>
       <p>{project.description}</p>
 
-      <h2>Tâches du projet</h2>
+      {error && <p role="alert">{error}</p>}
 
-      {tasks.length === 0 ? (
-        <p>Aucune tâche pour ce projet.</p>
-      ) : (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <article className="card" key={task.id}>
-              <h3>{task.title}</h3>
-              <p>Statut : {task.status}</p>
-              <p>Priorité : {task.priority}</p>
-            </article>
-          ))}
-        </div>
-      )}
+
+    <Card
+      title="Tâches"
+      actions={
+        <FilterBar
+          value={filter}
+          onChange={setFilter}
+        />
+      }
+    >
+      <TaskForm onAdd={add} />
+
+      <TaskList
+        tasks={visible}
+        onCycle={cycle}
+        onRemove={remove}
+      />
+    </Card>
+
     </section>
   );
 }

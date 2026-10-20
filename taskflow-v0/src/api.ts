@@ -1,5 +1,5 @@
 
-import type { Project, ProjectTask, ProjectWithTasks } from "./type";
+import type { Project, ProjectTask, ProjectWithTasks, NewTask } from "./type";
 
 const API_URL = "http://localhost:3001";
 
@@ -23,7 +23,7 @@ export async function getProject(id: string): Promise<Project> {
   );
 
   if (!response.ok) {
-    throw new Error("Projet introuvable");
+    throw new ApiError(response.status, "Projet introuvable");
   }
 
   return response.json();
@@ -42,4 +42,67 @@ export async function getProjectTasks(
   }
 
   return response.json();
+}
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+export async function createTask(
+  task: NewTask
+): Promise<ProjectTask> {
+  const response = await fetch(`${API_URL}/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, "Création impossible");
+  }
+
+  return response.json();
+}
+
+export async function updateTask(
+  id: string,
+  changes: Partial<ProjectTask>
+): Promise<ProjectTask> {
+  const response = await fetch(
+    `${API_URL}/tasks/${encodeURIComponent(id)}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(changes),
+    }
+  );
+
+  if (!response.ok) {
+    throw new ApiError(response.status, "Modification impossible");
+  }
+
+  return response.json();
+}
+
+export async function deleteTask(id: string): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/tasks/${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!response.ok) {
+    throw new ApiError(response.status, "Suppression impossible");
+  }
 }
