@@ -3,6 +3,15 @@ export type Priority = 1 | 2 | 3;
 export type Task = { id: string; title: string; status: Status; priority: Priority };
 export type Filter = "all" | Status;
 export type Project = { id: string; name: string; description: string };
+
+export type ProjectTask = {
+  id: string;
+  projectId: string;
+  title: string;
+  status: "todo" | "doing" | "done";
+  priority: 1 | 2 | 3;
+};
+
 // export const MAX_TITLE = 80;
 
 export const STATUS_LABELS: Record<Status, string> = {
@@ -16,6 +25,8 @@ export const nextStatus = (s: Status): Status =>
 
 // Données pour créer : sans id (généré par le serveur)
 export type NewProject = Omit<Project, "id">;
-export type NewTask = Omit<Task, "id">;
+export type NewTask = Omit<ProjectTask, "id">;
 // Projet avec ses tâches (réponse de /projects?_embed=tasks)
-export type ProjectWithTasks = Project & { tasks: Task[] };
+export type ProjectWithTasks = Project & {
+  tasks: ProjectTask[];
+};

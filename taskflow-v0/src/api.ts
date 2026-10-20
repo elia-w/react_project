@@ -1,52 +1,45 @@
-import type { NewProject, NewTask, Project, ProjectWithTasks, Task } from "./type";
+
+import type { Project, ProjectTask, ProjectWithTasks } from "./type";
+
 const API_URL = "http://localhost:3001";
 
-export class ApiError extends Error {
-    status: number;
-    constructor(status: number, message: string) {
-        super(message);
-        this.status = status;
-    }
+// Récupérer tous les projets
+export async function getProjects(): Promise<ProjectWithTasks[]> {
+  const response = await fetch(
+    `${API_URL}/projects?_embed=tasks`
+  );
+
+  if (!response.ok) {
+    throw new Error("Impossible de charger les projets.");
+  }
+
+  return response.json();
 }
 
-async function request<T>(
-    path: string,
-    options?: RequestInit,
-): Promise<T> {
-    const response = await fetch(API_URL + path, {
-        headers: { "Content-Type": "application/json" },
-        ...options,
-    });
-    if (!response.ok) {
-        throw new ApiError(
-            response.status,
-            `Erreur ${response.status} sur ${path}`,
-        );
-    }
-    return (await response.json()) as T;
+// Récupérer un projet par son ID
+export async function getProject(id: string): Promise<Project> {
+  const response = await fetch(
+    `${API_URL}/projects/${encodeURIComponent(id)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Projet introuvable");
+  }
+
+  return response.json();
 }
 
-export const api = {
-    getProjects: () =>
-        request<ProjectWithTasks[]>("/projects?_embed=tasks"),
-    getProject: (id: string) => request<Project>(`/projects/${id}`),
-    createProject: (data: NewProject) =>
-        request<Project>("/projects", {
-            method: "POST",
-            body: JSON.stringify(data),
-        }),
-    getTasks: (projectId: string) =>
-        request<Task[]>(`/tasks?projectId=${projectId}`),
-    createTask: (data: NewTask) =>
-        request<Task>("/tasks", {
-            method: "POST",
-            body: JSON.stringify(data),
-        }),
-    updateTask: (id: string, changes: Partial<Task>) =>
-        request<Task>(`/tasks/${id}`, {
-            method: "PATCH",
-            body: JSON.stringify(changes),
-        }),
-    deleteTask: (id: string) =>
-        request<Task>(`/tasks/${id}`, { method: "DELETE" }),
-};
+// Récupérer les tâches d'un projet
+export async function getProjectTasks(
+  projectId: string
+): Promise<ProjectTask[]> {
+  const response = await fetch(
+    `${API_URL}/tasks?projectId=${encodeURIComponent(projectId)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Impossible de récupérer les tâches");
+  }
+
+  return response.json();
+}

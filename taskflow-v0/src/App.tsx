@@ -1,18 +1,11 @@
-import { Routes, Route, useParams } from "react-router";
-import { Layout } from "./components/Layout";
 
-function ProjectsPage() {
-  return <h1>Liste des projets</h1>;
-}
+import { Routes, Route } from "react-router";
+import { Layout } from "./components/Layout";
+import { ProjectsPage } from "./pages/ProjectsPage";
+import { ProjectPage } from "./pages/ProjectPage";
 
 function NewProjectPage() {
   return <h1>Nouveau projet</h1>;
-}
-
-function ProjectPage() {
-  const { id } = useParams();
-
-  return <h1>Projet : {id}</h1>;
 }
 
 function AboutPage() {
