@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Card } from "../components/Card";
-
+import { NotFoundPage } from "./NotFoundPage";
 import * as api from "../api";
 import { nextStatus } from "../type";
 
@@ -119,7 +119,7 @@ export function ProjectPage() {
 
   if (loading) return <p>Chargement...</p>;
 
-  if (notFound) return <h1>404 - Projet introuvable</h1>;
+  if (notFound) return <NotFoundPage />;
 
   if (!project) {
     return (
