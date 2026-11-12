@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaskFlow — TP4 : TaskFlow en Next.js
 
-## Getting Started
+Module React + Next.js · M2 ESIEE-IT · branche `tp-demo`
 
-First, run the development server:
+La partie « lecture » du TP3 refaite avec Next.js (App Router) : liste des projets, page d'un projet avec ses tâches filtrables, écran de chargement et page 404. Les données sont lues sur le serveur depuis `db.json` : ni React Router, ni json-server, ni `useEffect`.
+
+## En ligne
+
+https://react-project-demo-nu.vercel.app
+
+## Installation et lancement
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd taskflow-next
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Autres commandes : `npm run build` (build de production), `npm run lint`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Fonctionnalités
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Layout commun** (`src/app/layout.tsx`) : barre du haut avec les liens « Projets » et « À propos ».
+- **Page À propos** (`/about`) : une route créée par un simple dossier, avec son propre titre d'onglet.
+- **Liste des projets** (`/`) : Server Component `async` qui lit les projets sur le serveur et affiche le nombre de tâches terminées.
+- **Page d'un projet** (`/projects/[id]`) : adresse variable, `notFound()` si le projet n'existe pas.
+- **Filtres des tâches** (`TaskBoard`) : composant client (`"use client"` + `useState`) pour filtrer Toutes / À faire / En cours / Terminées sans recharger la page.
+- **Chargement et 404** : `loading.tsx` s'affiche pendant la lecture des données, `not-found.tsx` pour une adresse ou un projet inconnus.
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/
+    layout.tsx            mise en page commune
+    page.tsx              liste des projets (/)
+    about/page.tsx        page À propos (/about)
+    projects/[id]/page.tsx  page d'un projet
+    loading.tsx           écran de chargement
+    not-found.tsx         page 404
+  components/TaskBoard.tsx  filtres (composant client)
+  lib/
+    types.ts              types Task, Project…
+    data.ts               lecture de db.json (serveur uniquement)
+db.json                   données (projets et tâches)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Next.js 16 (App Router, Cache Components), React 19, TypeScript. Déployé sur Vercel.
 
-## Deploy on Vercel
+## Réalisation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Projet réalisé seule par Elia Wu.
