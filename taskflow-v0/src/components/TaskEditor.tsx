@@ -6,9 +6,9 @@ type Props = {
   };
 };
 
-function TaskEditor({ task }: Props) {
+export function TaskEditor({ task }: Props) {
   const [title, setTitle] = useState(task.title); // case 1
-  const [saving, setSaving] = useState(false); // case 2
+  const [saving] = useState(false); // case 2
   const inputRef = useRef<HTMLInputElement>(null); // case 3
 
   useEffect(() => {
@@ -33,6 +33,6 @@ function TaskEditor({ task }: Props) {
   );
 }
 
-function countWords(title: any): any {
-    throw new Error("Function not implemented.");
+function countWords(title: string): number {
+  return title.trim().split(/\s+/).filter(Boolean).length;
 }
