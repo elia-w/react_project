@@ -1,6 +1,6 @@
 // Affiché pendant le chargement d'une page
-// (créé en avance : cacheComponents exige un écran de chargement
-// pour une page qui attend ses données)
+// (avec cacheComponents, il sert aussi de <Suspense> obligatoire
+// pour les pages qui attendent leurs données)
 export default function Loading() {
   return (
     <div className="loading" aria-busy="true">
