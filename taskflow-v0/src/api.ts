@@ -1,7 +1,9 @@
 
 import type { Project, ProjectTask, ProjectWithTasks, NewTask } from "./type";
 
-const API_URL = "http://localhost:3001";
+// En ligne : adresse de l'API Render, donnée par Vercel (VITE_API_URL)
+// En local : json-server sur le port 3001
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
 // Récupérer tous les projets
 export async function getProjects(): Promise<ProjectWithTasks[]> {
