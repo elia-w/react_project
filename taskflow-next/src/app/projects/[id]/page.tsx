@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TaskBoard } from "@/components/TaskBoard";
 import { getProject } from "@/lib/data";
 
 type Props = { params: Promise<{ id: string }> };
@@ -17,8 +18,7 @@ export default async function ProjectPage({ params }: Props) {
       </Link>
       <h1>{project.name}</h1>
       <p className="muted">{project.description}</p>
-      {/* Étape 5 : remplacé par <TaskBoard tasks={project.tasks} /> */}
-      <p>{project.tasks.length} tâche(s)</p>
+      <TaskBoard tasks={project.tasks} />
     </section>
   );
 }
